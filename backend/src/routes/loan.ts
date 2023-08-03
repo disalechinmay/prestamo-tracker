@@ -2,15 +2,18 @@ import express from 'express';
 import { BAD_REQ_RESPONSE } from '../constants';
 import ApplicationPrismaClient from '../utils/db';
 import { findEmailFromUid } from '../utils/users';
+import { set } from 'date-fns';
+import { getCompoundInterest } from '../utils/accessories';
 
 export const router = express.Router();
 
 router.post('/', async (req, res) => {
-  // Check if the request body is valid and contains loanAmount, interestRate, and borrowerId
+  // Check if the request body is valid and contains loanAmount, interestRate, borrowerId, and date
   if (
     !('loanAmount' in req.body) ||
     !('interestRate' in req.body) ||
-    !('borrowerId' in req.body)
+    !('borrowerId' in req.body) ||
+    !('date' in req.body)
   )
     return res.status(400).send(BAD_REQ_RESPONSE + '- Missing fields');
 
@@ -48,12 +51,50 @@ router.post('/', async (req, res) => {
       interest: Number(req.body.interestRate),
       lenderId: req?.auth?.payload?.sub?.toString() as string,
       borrowerId: req.body.borrowerId.toString() as string,
+      date: set(new Date(req.body.date), {
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+        milliseconds: 0,
+      }),
     },
   });
 
   let transformedLoan = {
     ...loan,
     uid: loan.uid.toString(),
+  };
+
+  // Return the loan
+  return res.json(transformedLoan);
+});
+
+router.get('/:id', async (req, res) => {
+  // Check if ID is present and is a number
+  if (!req.params.id || isNaN(Number(req.params.id)))
+    return res.status(400).send(BAD_REQ_RESPONSE + '- Invalid ID');
+
+  // Check if the loanId is valid
+  const loan = await ApplicationPrismaClient.loan.findUnique({
+    where: { uid: Number(req.params.id) },
+    include: {
+      repayments: true,
+    },
+  });
+  if (!loan) return res.status(400).send('Loan not found');
+
+  let transformedLoan = {
+    ...loan,
+    uid: loan.uid.toString(),
+    date: new Date(loan.date),
+    borrower: await findEmailFromUid(loan.borrowerId),
+    lender: await findEmailFromUid(loan.lenderId),
+    currentOutstandingAmount: getCompoundInterest(
+      loan.amount,
+      loan.interest,
+      loan.date,
+      new Date()
+    ),
   };
 
   // Return the loan

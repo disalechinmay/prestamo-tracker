@@ -1,4 +1,4 @@
-import { IUser } from '../types';
+import { ILoan, ILoanExtended, IUser } from '../types';
 
 export const backendServerUrl: string =
   process.env.REACT_APP_BACKEND_SERVER_LOCATION || '';
@@ -51,7 +51,8 @@ export const createLoan = async (
   accessToken: string,
   borrowerId: string,
   loanAmount: number,
-  interestRate: number
+  interestRate: number,
+  startDate: Date
 ) => {
   const res = await fetch(`${backendServerUrl}/api/loans`, {
     method: 'POST',
@@ -60,11 +61,28 @@ export const createLoan = async (
       borrowerId,
       loanAmount,
       interestRate,
+      date: startDate,
     }),
   });
   // Check status code
   if (res.status !== 200) throw new Error(await res.text());
 
   const loan = await res.json();
+  return loan;
+};
+
+export const getLoan = async (
+  accessToken: string,
+  loanId: string
+): Promise<ILoanExtended | null> => {
+  const res = await fetch(`${backendServerUrl}/api/loans/${loanId}`, {
+    method: 'GET',
+    headers: getDefaultHeaders(accessToken),
+  });
+  // Check status code
+  if (res.status !== 200) throw new Error(await res.text());
+
+  const loan = await res.json();
+  loan.date = new Date(loan.date);
   return loan;
 };

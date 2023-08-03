@@ -26,6 +26,7 @@ model Loan {
   amount      Float
   interest    Float
   repayments  Repayment[]
+  date        DateTime
 }
 
 model Repayment {

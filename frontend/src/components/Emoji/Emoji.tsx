@@ -4,7 +4,7 @@ import React from 'react';
 interface EmojiProps {
   label: string;
   symbol: string;
-  size: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+  size: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'body1' | 'body2';
 }
 
 const Emoji = ({ label, symbol, size }: EmojiProps) => {

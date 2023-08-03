@@ -13,6 +13,8 @@ import '@fontsource/roboto/700.css';
 import { ThemeProvider } from '@mui/material';
 import { theme } from './assets/theme';
 import LoanDetails from './layouts/LoanDetails/LoanDetails';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 
 const router = createBrowserRouter([
   {
@@ -45,7 +47,9 @@ root.render(
         cacheLocation="localstorage"
       >
         <ThemeProvider theme={theme}>
-          <RouterProvider router={router} />
+          <LocalizationProvider dateAdapter={AdapterMoment}>
+            <RouterProvider router={router} />
+          </LocalizationProvider>
         </ThemeProvider>
       </Auth0Provider>
     </RecoilRoot>

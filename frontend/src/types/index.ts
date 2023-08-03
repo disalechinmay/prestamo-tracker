@@ -10,4 +10,18 @@ export interface ILoan {
   uid: string;
   amount: number;
   interest: number;
+  date: Date;
+  repayments: IRepayment[];
+}
+
+export interface IRepayment {
+  uid: string;
+  amount: number;
+  date: Date;
+}
+
+export interface ILoanExtended extends ILoan {
+  borrower: string;
+  lender: string;
+  currentOutstandingAmount: number;
 }

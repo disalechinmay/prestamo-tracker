@@ -10,6 +10,9 @@ import { createLoan, searchUsers } from '../../utils/api';
 import { useRecoilState } from 'recoil';
 import { accessTokenAtom } from '../../state';
 import { debounce } from 'lodash';
+import Emoji from '../Emoji/Emoji';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import moment, { Moment } from 'moment';
 
 interface NewLoanDialogProps {
   open: boolean;
@@ -28,6 +31,7 @@ const NewLoanDialog = ({ open, setOpen }: NewLoanDialogProps) => {
   const [loanAmount, setLoanAmount] = useState<number>(0);
   const [interestRate, setInterestRate] = useState<number>(0);
   const [borrower, setBorrower] = useState<string>('');
+  const [loanStartDate, setLoanStartDate] = useState<Moment | null>(moment());
   const [error, setError] = useState<string>('');
   const [formDisabled, setFormDisabled] = useState<boolean>(false);
 
@@ -59,6 +63,14 @@ const NewLoanDialog = ({ open, setOpen }: NewLoanDialogProps) => {
       setFormDisabled(false);
       return;
     }
+
+    // loanStartDate cannot be in future
+    if (loanStartDate && loanStartDate.isAfter(moment())) {
+      setError('Loan start date cannot be in future.');
+      setFormDisabled(false);
+      return;
+    }
+
     setError('');
 
     let loan = null;
@@ -67,7 +79,8 @@ const NewLoanDialog = ({ open, setOpen }: NewLoanDialogProps) => {
         accessToken as string,
         borrower,
         loanAmount,
-        interestRate
+        interestRate,
+        loanStartDate?.toDate() as Date
       );
       window.location.reload();
     } catch (e) {
@@ -88,7 +101,10 @@ const NewLoanDialog = ({ open, setOpen }: NewLoanDialogProps) => {
           },
         }}
       >
-        <DialogTitle>New Loan</DialogTitle>
+        <DialogTitle>
+          New Loan &nbsp;
+          <Emoji symbol="🚀" label="new-loan" size="h6" />
+        </DialogTitle>
         <DialogContent>
           <DialogContentText>
             Fill in the below details to create a new loan record.
@@ -133,6 +149,14 @@ const NewLoanDialog = ({ open, setOpen }: NewLoanDialogProps) => {
               onInputChange={(e, nv) => handleSearchQueryChange(nv)}
               onChange={(e, nv) => setBorrower(nv?.uid as string)}
               getOptionLabel={(option) => option.email}
+              disabled={formDisabled}
+            />
+            <br />
+            <br />
+            <DatePicker
+              label={'Loan Start Date'}
+              value={loanStartDate}
+              onChange={(nv) => setLoanStartDate(nv)}
               disabled={formDisabled}
             />
           </Box>

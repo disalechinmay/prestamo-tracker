@@ -43,15 +43,26 @@ const HomePage = () => {
   }, [isAuth0Loading]);
 
   const initializeAccessToken = async () => {
-    if (!accessToken)
-      setAccessToken(
-        (await getAccessTokenSilently({
+    if (!accessToken) {
+      let token = null;
+      token = (await getAccessTokenSilently({
+        authorizationParams: {
+          audience: backendServerUrl,
+          scope: 'read:profile',
+        },
+      })) as string;
+
+      if (token) setAccessToken(token);
+      else {
+        token = (await getAccessTokenWithPopup({
           authorizationParams: {
             audience: backendServerUrl,
             scope: 'read:profile',
           },
-        })) as string
-      );
+        })) as string;
+        setAccessToken(token);
+      }
+    }
   };
 
   const initializeHomePage = async () => {

@@ -19,6 +19,10 @@ const LoanLink = ({
   loan: { uid, amount, oppositeParty },
   type,
 }: LoanLinkProps) => {
+  const handleRedirect = (loanId: string) => {
+    window.location.href = `/loan/${loanId}`;
+  };
+
   return (
     <Box
       key={uid}
@@ -39,6 +43,7 @@ const LoanLink = ({
           transition: 'all 0.2s ease-in-out',
         },
       }}
+      onClick={() => handleRedirect(uid)}
     >
       <Box sx={{ flex: 1 }}>
         <Typography variant="h6">
