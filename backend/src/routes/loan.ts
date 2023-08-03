@@ -95,8 +95,61 @@ router.get('/:id', async (req, res) => {
       loan.date,
       new Date()
     ),
+    repayments: loan.repayments.map((repayment) => ({
+      ...repayment,
+      uid: repayment.uid.toString(),
+      date: new Date(repayment.date),
+      loanId: repayment.loanId.toString(),
+    })),
   };
 
   // Return the loan
   return res.json(transformedLoan);
+});
+
+router.put('/:id', async (req, res) => {
+  // Create a repayment against the loanId passed
+  // Check if ID is present and is a number
+  if (!req.params.id || isNaN(Number(req.params.id)))
+    return res.status(400).send(BAD_REQ_RESPONSE + '- Invalid ID');
+
+  // Check if the body has all fields - amount, comments, date
+  if (
+    !('amount' in req.body) ||
+    !('comments' in req.body) ||
+    !('date' in req.body)
+  )
+    return res.status(400).send(BAD_REQ_RESPONSE + '- Missing fields');
+
+  // Check if the loanId is valid
+  const loan = await ApplicationPrismaClient.loan.findUnique({
+    where: { uid: Number(req.params.id) },
+    include: {
+      repayments: true,
+    },
+  });
+  if (!loan) return res.status(400).send('Loan not found');
+
+  // Check if the amount is a number
+  if (isNaN(req.body.amount))
+    return res.status(400).send(BAD_REQ_RESPONSE + '- Amount is not a number');
+
+  // Check if the amount is greater than 0
+  if (req.body.amount <= 0)
+    return res
+      .status(400)
+      .send(BAD_REQ_RESPONSE + '- Amount must be greater than 0');
+
+  // Insert repayment record
+  const repayment = await ApplicationPrismaClient.repayment.create({
+    data: {
+      amount: Number(req.body.amount),
+      loanId: Number(req.params.id),
+      date: new Date(),
+      comments: req.body.comments,
+    },
+  });
+
+  // Return the repayment
+  return res.json({ success: true });
 });

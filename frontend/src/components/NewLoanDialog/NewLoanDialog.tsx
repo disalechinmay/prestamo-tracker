@@ -9,19 +9,15 @@ import { Autocomplete, Box, TextField } from '@mui/material';
 import { createLoan, searchUsers } from '../../utils/api';
 import { useRecoilState } from 'recoil';
 import { accessTokenAtom } from '../../state';
-import { debounce } from 'lodash';
+import { debounce, set } from 'lodash';
 import Emoji from '../Emoji/Emoji';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import moment, { Moment } from 'moment';
+import { UserSearchResult } from '../../utils/accessories';
 
 interface NewLoanDialogProps {
   open: boolean;
   setOpen: (v: boolean) => void;
-}
-
-interface UserSearchResult {
-  uid: string;
-  email: string;
 }
 
 const NewLoanDialog = ({ open, setOpen }: NewLoanDialogProps) => {
@@ -42,6 +38,7 @@ const NewLoanDialog = ({ open, setOpen }: NewLoanDialogProps) => {
     setInterestRate(0);
     setBorrower('');
     setError('');
+    setLoanStartDate(moment());
     setFormDisabled(false);
   };
 

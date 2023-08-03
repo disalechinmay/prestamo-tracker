@@ -35,4 +35,5 @@ model Repayment {
   loanId      BigInt
   amount      Float
   date        DateTime
+  comments    String
 }

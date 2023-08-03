@@ -18,6 +18,7 @@ export interface IRepayment {
   uid: string;
   amount: number;
   date: Date;
+  comments: string;
 }
 
 export interface ILoanExtended extends ILoan {

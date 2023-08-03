@@ -86,3 +86,22 @@ export const getLoan = async (
   loan.date = new Date(loan.date);
   return loan;
 };
+
+export const createRepaymentAgainstALoan = async (
+  accessToken: string,
+  loanId: string,
+  amount: number,
+  comments: string,
+  date: Date
+) => {
+  const res = await fetch(`${backendServerUrl}/api/loans/${loanId}`, {
+    method: 'PUT',
+    headers: getDefaultPostHeaders(accessToken),
+    body: JSON.stringify({ amount, comments, date }),
+  });
+  // Check status code
+  if (res.status !== 200) throw new Error(await res.text());
+
+  const repayment = await res.json();
+  return repayment;
+};
