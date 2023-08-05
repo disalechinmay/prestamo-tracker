@@ -228,8 +228,9 @@ const LoanDetailsRepayments = ({
 
       <NewRepaymentDialog
         open={newRepaymentDialogOpen}
-        setOpen={(v) => setNewRepaymentDialogOpen(v)}
+        setOpen={(v: boolean) => setNewRepaymentDialogOpen(v)}
         loanId={loan.uid}
+        loan={loan}
       />
     </Box>
   );

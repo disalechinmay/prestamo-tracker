@@ -102,7 +102,7 @@ router.get('/:id', async (req, res) => {
     borrower: await findEmailFromUid(loan.borrowerId),
     lender: await findEmailFromUid(loan.lenderId),
     currentOutstandingAmount:
-      loan.status === LoanStatus.REJECTED
+      loan.status === LoanStatus.REJECTED || loan.allPaid
         ? 0
         : getCurrentOutstandingAmount(
             loan.amount,
@@ -165,7 +165,12 @@ router.put('/:id', async (req, res) => {
     data: {
       amount: Number(req.body.amount),
       loanId: Number(req.params.id),
-      date: new Date(),
+      date: set(new Date(req.body.date), {
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+        milliseconds: 0,
+      }),
       comments: req.body.comments,
       status:
         req?.auth?.payload?.sub === loan.lenderId
@@ -173,6 +178,25 @@ router.put('/:id', async (req, res) => {
           : RepaymentStatus.PENDING,
     },
   });
+
+  // Get currentOutstandingAmount on the loan
+  const currentOutstandingAmount = getCurrentOutstandingAmount(
+    loan.amount,
+    loan.interest,
+    loan.date,
+    loan.repayments
+  );
+
+  // Check if the currentOutstandingAmount is less than the amount
+  if (currentOutstandingAmount < req.body.amount) {
+    // Mark loan as allPaid
+    await ApplicationPrismaClient.loan.update({
+      where: { uid: Number(req.params.id) },
+      data: {
+        allPaid: true,
+      },
+    });
+  }
 
   // Return the repayment
   return res.json({ success: true });

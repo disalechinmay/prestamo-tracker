@@ -24,7 +24,7 @@ const NewLoanDialog = ({ open, setOpen }: NewLoanDialogProps) => {
   const [accessToken, setAccessToken] = useRecoilState(accessTokenAtom);
 
   const [userOptions, setUserOptions] = useState<UserSearchResult[]>([]);
-  const [loanAmount, setLoanAmount] = useState<number>(0);
+  const [loanAmount, setLoanAmount] = useState<number>(1);
   const [interestRate, setInterestRate] = useState<number>(0);
   const [borrower, setBorrower] = useState<string>('');
   const [loanStartDate, setLoanStartDate] = useState<Moment | null>(moment());
@@ -53,8 +53,10 @@ const NewLoanDialog = ({ open, setOpen }: NewLoanDialogProps) => {
 
   const handleCreateLoan = async () => {
     setFormDisabled(true);
-    if (!borrower) {
-      setError('Please ensure that the borrower is selected.');
+    if (!borrower || !loanAmount || !interestRate || !loanStartDate) {
+      setError(
+        'Please fill in all the fields. Ensure amount is greater than 0.'
+      );
       setFormDisabled(false);
       return;
     }

@@ -27,13 +27,14 @@ export const getCurrentOutstandingAmount = (
   periods.push(startDate);
 
   let repaymentPeriods: Date[] = [];
-  repayments.forEach((repayment) => {
-    repaymentPeriods.push(repayment.date);
+
+  // Sort repayments by date ASCENDING
+  repayments.sort((a, b) => {
+    return moment(a.date).diff(moment(b.date));
   });
 
-  // Sort repayment periods
-  repaymentPeriods.sort((a, b) => {
-    return moment(a).diff(moment(b));
+  repayments.forEach((repayment) => {
+    repaymentPeriods.push(repayment.date);
   });
 
   // Add repayment periods to periods
@@ -57,10 +58,19 @@ export const getCurrentOutstandingAmount = (
       startDate,
       endDate
     );
+
     currentOutstandingAmount += interest;
 
-    if (repayments[i + 1]?.status === 'approved')
-      currentOutstandingAmount -= repayments[i + 1]?.amount || 0;
+    if (repayments[i]?.status === 'approved')
+      currentOutstandingAmount -= repayments[i]?.amount || 0;
+
+    if (i === periods.length - 2)
+      currentOutstandingAmount += getCompoundInterest(
+        currentOutstandingAmount,
+        interestRate,
+        endDate,
+        new Date()
+      );
   }
 
   return currentOutstandingAmount;

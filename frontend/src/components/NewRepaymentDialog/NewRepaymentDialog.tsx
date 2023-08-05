@@ -18,21 +18,24 @@ import {
 } from '@mui/material';
 import Emoji from '../Emoji/Emoji';
 import { DatePicker } from '@mui/x-date-pickers';
+import { ILoanExtended } from '../../types';
 
 interface NewRepaymentDialogProps {
   open: boolean;
   setOpen: (v: boolean) => void;
   loanId: string;
+  loan: ILoanExtended;
 }
 
 const NewRepaymentDialog = ({
   open,
   setOpen,
   loanId,
+  loan,
 }: NewRepaymentDialogProps) => {
   const [accessToken, setAccessToken] = useRecoilState(accessTokenAtom);
 
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState<number>(1);
   const [comments, setComments] = useState<string>('');
   const [date, setDate] = useState<Moment | null>(moment());
   const [error, setError] = useState<string>('');
@@ -49,9 +52,9 @@ const NewRepaymentDialog = ({
 
   const handleCreateRepayment = async () => {
     setFormDisabled(true);
-    if (!amount || !comments) {
+    if (!comments || !amount || !date) {
       setError(
-        'Please fill in all the fields. Make sure that the amount is greater than 0 and a comment is provided.'
+        'Please fill in all the fields. Ensure amount is greater than 0.'
       );
       setFormDisabled(false);
       return;
@@ -60,6 +63,13 @@ const NewRepaymentDialog = ({
     // date cannot be in future
     if (date && date.isAfter(moment())) {
       setError('Transaction date cannot be in future.');
+      setFormDisabled(false);
+      return;
+    }
+
+    // date cannot be on or before loan start date
+    if (date && loan.date && date.isSameOrBefore(loan.date)) {
+      setError('Transaction date cannot be on or before loan start date.');
       setFormDisabled(false);
       return;
     }
@@ -111,6 +121,7 @@ const NewRepaymentDialog = ({
               value={amount}
               onChange={(e) => setAmount(Number(e.target.value))}
               disabled={formDisabled}
+              InputProps={{ inputProps: { min: 1 } }}
               required
               fullWidth
             />

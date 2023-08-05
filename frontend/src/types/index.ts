@@ -14,6 +14,7 @@ export interface ILoan {
   repayments: IRepayment[];
   status: LoanStatus;
   createdBy: LoanCreator;
+  allPaid: boolean;
 }
 
 export interface IRepayment {
