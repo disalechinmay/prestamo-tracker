@@ -27,6 +27,8 @@ model Loan {
   interest    Float
   repayments  Repayment[]
   date        DateTime
+  status      String      @default("pending")
+  createdBy   String      @default("lender")
 }
 
 model Repayment {
@@ -36,4 +38,5 @@ model Repayment {
   amount      Float
   date        DateTime
   comments    String
+  status      String      @default("pending")
 }

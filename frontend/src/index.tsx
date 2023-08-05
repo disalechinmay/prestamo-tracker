@@ -10,6 +10,7 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+import '@fontsource/oleo-script/400.css';
 import { ThemeProvider } from '@mui/material';
 import { theme } from './assets/theme';
 import LoanDetails from './layouts/LoanDetails/LoanDetails';

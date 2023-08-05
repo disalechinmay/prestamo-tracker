@@ -53,10 +53,8 @@ const NewLoanDialog = ({ open, setOpen }: NewLoanDialogProps) => {
 
   const handleCreateLoan = async () => {
     setFormDisabled(true);
-    if (!loanAmount || !borrower) {
-      setError(
-        'Please fill in all the fields. Make sure that the amount is greater than 0 and a borrower is selected.'
-      );
+    if (!borrower) {
+      setError('Please ensure that the borrower is selected.');
       setFormDisabled(false);
       return;
     }
@@ -79,7 +77,7 @@ const NewLoanDialog = ({ open, setOpen }: NewLoanDialogProps) => {
         interestRate,
         loanStartDate?.toDate() as Date
       );
-      window.location.reload();
+      window.location.href = '/loan/' + loan.uid;
     } catch (e) {
       setError('Something went wrong. Please try again. [' + e + ']');
     }
@@ -115,6 +113,7 @@ const NewLoanDialog = ({ open, setOpen }: NewLoanDialogProps) => {
               value={loanAmount}
               onChange={(e) => setLoanAmount(Number(e.target.value))}
               disabled={formDisabled}
+              InputProps={{ inputProps: { min: 1 } }}
               required
               fullWidth
             />
@@ -127,6 +126,7 @@ const NewLoanDialog = ({ open, setOpen }: NewLoanDialogProps) => {
               value={interestRate}
               onChange={(e) => setInterestRate(Number(e.target.value))}
               disabled={formDisabled}
+              InputProps={{ inputProps: { min: 0 } }}
               required
               fullWidth
             />

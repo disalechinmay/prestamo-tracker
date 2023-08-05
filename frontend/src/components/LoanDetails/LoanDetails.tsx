@@ -6,6 +6,7 @@ import { ILoan, ILoanExtended } from '../../types';
 import LoanDetailsGreeting from '../LoanDetailsGreeting/LoanDetailsGreeting';
 import LoanDetailsMainFacts from '../LoanDetailsMainFacts/LoanDetailsMainFacts';
 import LoanDetailsRepayments from '../LoanDetailsRepayments/LoanDetailsRepayments';
+import LoanDetailsAcceptanceAlert from '../LoanDetailsAcceptanceAlert/LoanDetailsAcceptanceAlert';
 
 interface LoanDetailsProps {
   loan: ILoanExtended;
@@ -20,6 +21,7 @@ const LoanDetailsComponent = ({ loan, isBorrower }: LoanDetailsProps) => {
   return (
     <Box>
       <LoanDetailsGreeting loanId={loan.uid} />
+      <LoanDetailsAcceptanceAlert loan={loan} isBorrower={isBorrower} />
       <LoanDetailsMainFacts loan={loan} isBorrower={isBorrower} />
       <LoanDetailsRepayments loan={loan} isBorrower={isBorrower} />
     </Box>

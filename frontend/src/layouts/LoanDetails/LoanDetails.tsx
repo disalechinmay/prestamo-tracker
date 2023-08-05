@@ -124,6 +124,7 @@ const LoanDetails = () => {
                   xs: '100%',
                   sm: '100%',
                   md: '70%',
+                  border: '1px solid rgba(0, 0, 0, 0.12)',
                 },
               }}
             >

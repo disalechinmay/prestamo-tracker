@@ -1,6 +1,6 @@
-import { Box, Card, Typography } from '@mui/material';
+import { Alert, Box, Button, Card, Typography } from '@mui/material';
 import React from 'react';
-import { ILoan, ILoanExtended } from '../../types';
+import { ILoan, ILoanExtended, LoanCreator, LoanStatus } from '../../types';
 import Emoji from '../Emoji/Emoji';
 import { formatMoney } from '../../utils/accessories';
 import moment, { Moment } from 'moment';
@@ -28,7 +28,7 @@ const LoanDetailsMainFacts = ({
         }}
       >
         <Box flex={1} m={1}>
-          <Card sx={{ p: 2 }} variant="outlined">
+          <Card sx={{ p: 2, pt: 1 }} variant="outlined">
             <Typography variant="overline">
               Principal Amount
               <Emoji symbol="💰" label="principal-amount" size="h6" />
@@ -62,7 +62,7 @@ const LoanDetailsMainFacts = ({
           </Card>
         </Box>
         <Box flex={1} m={1}>
-          <Card sx={{ p: 2 }} variant="outlined">
+          <Card sx={{ p: 2, pt: 1 }} variant="outlined">
             <Typography variant="overline">
               Current Outstanding
               <Emoji symbol="💸" label="start-date" size="h6" />
@@ -107,7 +107,7 @@ const LoanDetailsMainFacts = ({
         }}
       >
         <Box flex={1} m={1}>
-          <Card sx={{ p: 2 }} variant="outlined">
+          <Card sx={{ p: 2, pt: 1 }} variant="outlined">
             <Typography variant="overline">
               {isBorrower ? 'Borrowed From' : 'Lent To'}
               <Emoji symbol="🧔" label="opposite-party" size="h6" />
@@ -118,7 +118,7 @@ const LoanDetailsMainFacts = ({
           </Card>
         </Box>
         <Box flex={1} m={1}>
-          <Card sx={{ p: 2 }} variant="outlined">
+          <Card sx={{ p: 2, pt: 1 }} variant="outlined">
             <Typography variant="overline">
               Start Date
               <Emoji symbol="📅" label="start-date" size="h6" />
@@ -127,7 +127,7 @@ const LoanDetailsMainFacts = ({
           </Card>
         </Box>
         <Box flex={1} m={1}>
-          <Card sx={{ p: 2 }} variant="outlined">
+          <Card sx={{ p: 2, pt: 1 }} variant="outlined">
             <Typography variant="overline">
               Interest Rate
               <Emoji symbol="⏲" label="principal-amount" size="h6" />

@@ -3,7 +3,14 @@ import { BAD_REQ_RESPONSE } from '../constants';
 import ApplicationPrismaClient from '../utils/db';
 import { findEmailFromUid } from '../utils/users';
 import { set } from 'date-fns';
-import { getCompoundInterest } from '../utils/accessories';
+import {
+  getCompoundInterest,
+  getCurrentOutstandingAmount,
+} from '../utils/accessories';
+import RepaymentStatus from '../types/RepaymentTypes';
+import moment from 'moment';
+import LoanStatus from '../types/LoanTypes';
+import LoanCreator from '../types/LoanCreator';
 
 export const router = express.Router();
 
@@ -57,6 +64,11 @@ router.post('/', async (req, res) => {
         seconds: 0,
         milliseconds: 0,
       }),
+      status: LoanStatus.PENDING,
+      createdBy:
+        req.body.borrowerId === req?.auth?.payload?.sub?.toString()
+          ? LoanCreator.BORROWER
+          : LoanCreator.LENDER,
     },
   });
 
@@ -89,12 +101,15 @@ router.get('/:id', async (req, res) => {
     date: new Date(loan.date),
     borrower: await findEmailFromUid(loan.borrowerId),
     lender: await findEmailFromUid(loan.lenderId),
-    currentOutstandingAmount: getCompoundInterest(
-      loan.amount,
-      loan.interest,
-      loan.date,
-      new Date()
-    ),
+    currentOutstandingAmount:
+      loan.status === LoanStatus.REJECTED
+        ? 0
+        : getCurrentOutstandingAmount(
+            loan.amount,
+            loan.interest,
+            loan.date,
+            loan.repayments
+          ),
     repayments: loan.repayments.map((repayment) => ({
       ...repayment,
       uid: repayment.uid.toString(),
@@ -102,6 +117,11 @@ router.get('/:id', async (req, res) => {
       loanId: repayment.loanId.toString(),
     })),
   };
+
+  // Sort repayments by date DESC
+  transformedLoan.repayments.sort((a, b) => {
+    return moment(b.date).diff(moment(a.date));
+  });
 
   // Return the loan
   return res.json(transformedLoan);
@@ -147,9 +167,116 @@ router.put('/:id', async (req, res) => {
       loanId: Number(req.params.id),
       date: new Date(),
       comments: req.body.comments,
+      status:
+        req?.auth?.payload?.sub === loan.lenderId
+          ? RepaymentStatus.APPROVED
+          : RepaymentStatus.PENDING,
     },
   });
 
   // Return the repayment
+  return res.json({ success: true });
+});
+
+router.post('/repayment/:id/action', async (req, res) => {
+  // Check if POST body contains status
+  if (!('status' in req.body))
+    return res.status(400).send(BAD_REQ_RESPONSE + '- Missing fields');
+
+  // Check if status is valid
+  if (
+    req.body.status !== RepaymentStatus.APPROVED &&
+    req.body.status !== RepaymentStatus.REJECTED
+  )
+    return res.status(400).send(BAD_REQ_RESPONSE + '- Invalid status');
+
+  // Check if ID is present and is a number
+  if (!req.params.id || isNaN(Number(req.params.id)))
+    return res.status(400).send(BAD_REQ_RESPONSE + '- Invalid ID');
+
+  // Check if the repayment ID is valid
+  const repayment = await ApplicationPrismaClient.repayment.findUnique({
+    where: { uid: Number(req.params.id) },
+  });
+
+  if (!repayment) return res.status(400).send('Repayment not found');
+
+  if (
+    repayment.status === RepaymentStatus.APPROVED ||
+    repayment.status === RepaymentStatus.REJECTED
+  )
+    return res.status(400).send('Repayment already actioned');
+
+  // Find the loan
+  const loan = await ApplicationPrismaClient.loan.findUnique({
+    where: { uid: repayment.loanId },
+  });
+
+  if (req?.auth?.payload?.sub !== loan?.lenderId)
+    return res.status(400).send('Only lender can action repayments');
+
+  // Update the repayment status
+  await ApplicationPrismaClient.repayment.update({
+    where: { uid: Number(req.params.id) },
+    data: {
+      status: req.body.status,
+    },
+  });
+
+  return res.json({ success: true });
+});
+
+router.post('/:id/action', async (req, res) => {
+  // Check if POST body contains status
+  if (!('status' in req.body))
+    return res.status(400).send(BAD_REQ_RESPONSE + '- Missing fields');
+
+  // Check if status is valid
+  if (
+    req.body.status !== LoanStatus.APPROVED &&
+    req.body.status !== LoanStatus.REJECTED
+  )
+    return res.status(400).send(BAD_REQ_RESPONSE + '- Invalid status');
+
+  // Check if ID is present and is a number
+  if (!req.params.id || isNaN(Number(req.params.id)))
+    return res.status(400).send(BAD_REQ_RESPONSE + '- Invalid ID');
+
+  // Check if the loan ID is valid
+  const loan = await ApplicationPrismaClient.loan.findUnique({
+    where: { uid: Number(req.params.id) },
+  });
+
+  if (!loan) return res.status(400).send('Loan not found');
+
+  if (
+    loan.status === LoanStatus.APPROVED ||
+    loan.status === LoanStatus.REJECTED
+  )
+    return res.status(400).send('Loan already actioned');
+
+  // Find the opposite party. If the loan was created by the borrower, the opposite party is the lender and vice versa
+  const oppositeParty =
+    loan.createdBy === LoanCreator.BORROWER ? loan.lenderId : loan.borrowerId;
+
+  // Check if the user is the opposite party
+  if (req?.auth?.payload?.sub !== oppositeParty)
+    return res.status(400).send('Only opposite party can action loans');
+
+  // Delete loan if rejected
+  if (req.body.status === LoanStatus.REJECTED) {
+    await ApplicationPrismaClient.loan.delete({
+      where: { uid: Number(req.params.id) },
+    });
+  } else {
+    // Update the loan status
+    await ApplicationPrismaClient.loan.update({
+      where: { uid: Number(req.params.id) },
+      data: {
+        status: req.body.status,
+      },
+    });
+  }
+
   return res.json({ success: true });
 });

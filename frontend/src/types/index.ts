@@ -12,6 +12,8 @@ export interface ILoan {
   interest: number;
   date: Date;
   repayments: IRepayment[];
+  status: LoanStatus;
+  createdBy: LoanCreator;
 }
 
 export interface IRepayment {
@@ -19,10 +21,28 @@ export interface IRepayment {
   amount: number;
   date: Date;
   comments: string;
+  status: RepaymentStatus;
 }
 
 export interface ILoanExtended extends ILoan {
   borrower: string;
   lender: string;
   currentOutstandingAmount: number;
+}
+
+export enum RepaymentStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+}
+
+export enum LoanStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+}
+
+export enum LoanCreator {
+  BORROWER = 'borrower',
+  LENDER = 'lender',
 }

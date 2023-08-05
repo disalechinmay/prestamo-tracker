@@ -30,9 +30,9 @@ const Header = () => {
           <Toolbar variant="dense">
             <AccountBalanceIcon sx={{ mr: 1 }} />
             <Typography
-              variant="h6"
+              variant="h5"
               component="div"
-              sx={{ flexGrow: 1, cursor: 'pointer' }}
+              sx={{ flexGrow: 1, cursor: 'pointer', fontFamily: 'Oleo Script' }}
               onClick={() => redirectToHomePage()}
             >
               Prestamo

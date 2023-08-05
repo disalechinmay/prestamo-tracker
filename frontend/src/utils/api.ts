@@ -105,3 +105,40 @@ export const createRepaymentAgainstALoan = async (
   const repayment = await res.json();
   return repayment;
 };
+
+export const updateRepaymentStatus = async (
+  accessToken: string,
+  repaymentId: string,
+  status: string
+) => {
+  const res = await fetch(
+    `${backendServerUrl}/api/loans/repayment/${repaymentId}/action`,
+    {
+      method: 'POST',
+      headers: getDefaultPostHeaders(accessToken),
+      body: JSON.stringify({ status }),
+    }
+  );
+  // Check status code
+  if (res.status !== 200) throw new Error(await res.text());
+
+  const repayment = await res.json();
+  return repayment;
+};
+
+export const updateLoanStatus = async (
+  accessToken: string,
+  loanId: string,
+  status: string
+) => {
+  const res = await fetch(`${backendServerUrl}/api/loans/${loanId}/action`, {
+    method: 'POST',
+    headers: getDefaultPostHeaders(accessToken),
+    body: JSON.stringify({ status }),
+  });
+  // Check status code
+  if (res.status !== 200) throw new Error(await res.text());
+
+  const loan = await res.json();
+  return loan;
+};
