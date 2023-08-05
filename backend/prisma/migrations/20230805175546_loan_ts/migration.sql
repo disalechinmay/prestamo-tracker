@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "plt_loan" ADD COLUMN     "creationTs" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;

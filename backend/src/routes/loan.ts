@@ -51,6 +51,51 @@ router.post('/', async (req, res) => {
       .status(400)
       .send(BAD_REQ_RESPONSE + '- Loan amount must be greater than 0');
 
+  let targetDate = new Date();
+  targetDate.setDate(targetDate.getDate() - 7);
+
+  // Allow only 7  loans in 7 days
+  const loans = await ApplicationPrismaClient.loan.findMany({
+    where: {
+      createdBy: LoanCreator.LENDER,
+      lenderId: req?.auth?.payload?.sub?.toString(),
+      creationTs: {
+        gte: set(targetDate, {
+          hours: 0,
+          minutes: 0,
+          seconds: 0,
+          milliseconds: 0,
+        }),
+      },
+    },
+  });
+
+  if (loans.length >= 7)
+    return res
+      .status(400)
+      .send(BAD_REQ_RESPONSE + '- Cannot create more than 7 loans in 7 days');
+
+  // Allow only 7  loans in 7 days
+  const loans2 = await ApplicationPrismaClient.loan.findMany({
+    where: {
+      createdBy: LoanCreator.BORROWER,
+      borrowerId: req?.auth?.payload?.sub?.toString(),
+      creationTs: {
+        gte: set(targetDate, {
+          hours: 0,
+          minutes: 0,
+          seconds: 0,
+          milliseconds: 0,
+        }),
+      },
+    },
+  });
+
+  if (loans2.length >= 5)
+    return res
+      .status(400)
+      .send(BAD_REQ_RESPONSE + '- Cannot create more than 7 loans in 7 days');
+
   // Insert the loan into the database
   const loan = await ApplicationPrismaClient.loan.create({
     data: {

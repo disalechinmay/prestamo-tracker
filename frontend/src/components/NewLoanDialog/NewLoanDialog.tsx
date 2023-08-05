@@ -53,7 +53,7 @@ const NewLoanDialog = ({ open, setOpen }: NewLoanDialogProps) => {
 
   const handleCreateLoan = async () => {
     setFormDisabled(true);
-    if (!borrower || !loanAmount || !interestRate || !loanStartDate) {
+    if (!borrower || !loanAmount || !loanStartDate) {
       setError(
         'Please fill in all the fields. Ensure amount is greater than 0.'
       );

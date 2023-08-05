@@ -32,6 +32,7 @@ model Loan {
   status      String      @default("pending")
   createdBy   String      @default("lender")
   allPaid     Boolean     @default(false)
+  creationTs  DateTime    @default(now())
 
   @@map("plt_loan")
 }
