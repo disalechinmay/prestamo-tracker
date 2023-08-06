@@ -6,7 +6,6 @@ import { BAD_REQ_RESPONSE, FATAL_RESPONSE } from './constants';
 import { router as userRouter } from './routes/users';
 import { router as loanRouter } from './routes/loan';
 import ApplicationPrismaClient from './utils/db';
-import serverless from 'serverless-http';
 
 dotenv.config();
 const app = express();
@@ -36,16 +35,8 @@ app.use((err: Error, req: Request, res: Response) => {
 });
 
 app.listen(port, () => {
-  console.log('Server is running at http://localhost:3001');
+  console.log(`Server is running at ${port}`);
 });
-
-if (process.env.ENVIRONMENT === 'production') {
-  exports.handler = serverless(app);
-} else {
-  app.listen(port, () => {
-    console.log(`Server is listening on port ${port}.`);
-  });
-}
 
 process.on('SIGINT', () => {
   ApplicationPrismaClient.$disconnect().then(() => {

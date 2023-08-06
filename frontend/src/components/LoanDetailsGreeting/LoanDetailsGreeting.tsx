@@ -37,7 +37,7 @@ const LoanDetailsGreeting = ({ loan }: LoanDetailsGreetingProps) => {
             color="success"
           >
             <Typography variant="body1" color="initial">
-              Congratulations! You have paid off this loan.{' '}
+              Yay! This loan has been paid off.{' '}
               <Emoji symbol="🎉" label="party-popper" size="body1" />
             </Typography>
           </Alert>

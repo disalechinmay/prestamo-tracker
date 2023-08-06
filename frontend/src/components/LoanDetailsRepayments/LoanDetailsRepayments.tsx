@@ -1,15 +1,13 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ILoanExtended, LoanStatus, RepaymentStatus } from '../../types';
 import { useRecoilState } from 'recoil';
-import { accessTokenAtom, userAtom } from '../../state';
+import { accessTokenAtom } from '../../state';
 import {
-  Badge,
   Box,
   Button,
   ButtonGroup,
   Chip,
   Divider,
-  IconButton,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -21,13 +19,7 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ErrorIcon from '@mui/icons-material/Error';
 import { updateRepaymentStatus } from '../../utils/api';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import {
-  ErrorRounded,
-  Warning,
-  WarningOutlined,
-  WarningRounded,
-} from '@mui/icons-material';
+import { ErrorRounded } from '@mui/icons-material';
 
 interface LoanDetailsRepaymentsLoanDetailsProps {
   loan: ILoanExtended;
@@ -39,8 +31,7 @@ const LoanDetailsRepayments = ({
   isBorrower,
 }: LoanDetailsRepaymentsLoanDetailsProps) => {
   // Recoil State
-  const [accessToken, setAccessToken] = useRecoilState(accessTokenAtom);
-  const [user, setUser] = useRecoilState(userAtom);
+  const [accessToken] = useRecoilState(accessTokenAtom);
 
   const [newRepaymentDialogOpen, setNewRepaymentDialogOpen] =
     useState<boolean>(false);
@@ -90,7 +81,7 @@ const LoanDetailsRepayments = ({
           size="small"
           sx={{ float: 'right' }}
           onClick={() => setNewRepaymentDialogOpen(true)}
-          disabled={loan.status !== LoanStatus.APPROVED}
+          disabled={loan.status !== LoanStatus.APPROVED || loan.allPaid}
         >
           New
         </Button>
