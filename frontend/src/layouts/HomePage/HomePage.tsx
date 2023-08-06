@@ -45,12 +45,14 @@ const HomePage = () => {
   const initializeAccessToken = async () => {
     if (!accessToken) {
       let token = null;
-      token = (await getAccessTokenSilently({
-        authorizationParams: {
-          audience: backendServerUrl,
-          scope: 'read:profile',
-        },
-      })) as string;
+      try {
+        token = (await getAccessTokenSilently({
+          authorizationParams: {
+            audience: backendServerUrl,
+            scope: 'read:profile',
+          },
+        })) as string;
+      } catch (ignored) {}
 
       if (token) setAccessToken(token);
       else {
