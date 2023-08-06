@@ -7,7 +7,7 @@
     "start": "node dist/app.js",
     "build": "node build.js",
     "dev": "nodemon src/app.ts --exec && node build.js && node dist/app.js",
-    "vercel-build": "echo 'vercel-build noop'"
+    "vercel-build": "npx prisma generate && echo 'vercel-build start'"
   },
   "author": "",
   "license": "ISC",
